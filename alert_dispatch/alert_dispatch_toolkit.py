@@ -1,6 +1,14 @@
-from celery import Celery
+from __future__ import absolute_import, unicode_literals
+from .celery import app
 
-app = Celery('alert_dispatch_toolkit', broker='amqp://guest@localhost//')
+#Django setup
+import os, django
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'web_interface.settings'
+django.setup()
+
+from web_interface.alert_config_app.models import Alert, Trigger
+from django.contrib.auth.models import User
 
 @app.task
 def add(x, y):
