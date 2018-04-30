@@ -13,3 +13,5 @@ gecko*
 .coverage
 .cache
 web_interface/session_logs*
+*.egg*
+.pytest_cache*
