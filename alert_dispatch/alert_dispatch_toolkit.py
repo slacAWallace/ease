@@ -21,8 +21,9 @@ def add(x, y):
 def proc_alert(alert_id=None, trigger_id=None):
     #Processes a triggered trigger: decides whether to send alerts, and sends them
 
-    #Get the alert
+    #Get the alert and trigger
     alert = Alert.objects.get(id=alert_id)
+    trigger = Trigger.objects.get(id=trigger_id)
     #Should we send an alert?
     #When was the last time we sent an alert?
     if datetime.now() - alert.last_sent.datetime() > alert.lockout_duration.timedelta() and
@@ -33,9 +34,17 @@ def proc_alert(alert_id=None, trigger_id=None):
         send_alert = False
 
     #Send an email
+    if send_alert and alert.use_email():
+        email = make_alert_email()
+        send_email(email)
+
     #Send Slack
+    if send_alert and alert.use_slack():
+        send_slack()
+
     #Mark the alert last sent
-    pass
+    alert.last_sent(datetime.now())
+    
 
 def make_alert_email():
     #Make the email to be sent

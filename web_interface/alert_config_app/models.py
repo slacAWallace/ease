@@ -23,6 +23,14 @@ class Alert(models.Model):
         Django relationship pointing to the profiles of users who will be
         notified when this alert triggers. View its members using
         Alert.subscriber.all()
+        Notes about email:
+            A subscriber will be included in any emails this alert sends.
+        Notes about Slack:
+            Subscribers will be notified via their personal channel if no
+            channel is specified in the Slack settings. If a channel is 
+            specified, the subscriber will receive an invie to that
+            channel, if their Slack username is not blank and all the
+            permissions check-out.
 
     owner : django.db.models.ManyToManyField
         Django relationship pointing to the profiles of users who will have the
@@ -49,6 +57,12 @@ class Alert(models.Model):
     state : django.db.models.CharField
         Alert state implies if alert triggers have fired and if the alert should
         send new messages to alert owners.
+
+    use_email : django.db.models.BooleanField
+        Use email to send alerts. Default true.
+    
+    use_slack : django.db.models.BooleanField
+        Use Slack to sent alerts. Default false.
 
     """
     name_max_length = 100
@@ -87,6 +101,16 @@ class Alert(models.Model):
         verbose_name = 'Alert State',
     )
 
+    use_email = models.BooleanField(
+        blank = False,
+        default = True,
+    )
+
+    use_slack = models.BooleanField(
+        blank = False,
+        default = False,
+    )
+
     def __repr__(self):
         # attempting to print subscriber and owner leads to infinite recursive loop
         return "{}( name={})".format(
@@ -101,14 +125,28 @@ class Alert(models.Model):
 class SlackSettings(models.Model):
     """Alert settings for Slack communication
     
-    Channel to use for communication.
-    --- placeholder for other settings in the future ---
+    channel_name : django.db.models.CharField
+        Channel to use for communication.
+    message_template : django.db.models.CharField
+        Template to use for the Slack alert.
     """
     channel_name_max_length = 100
     channel_name = models.CharField(
         max_length = channel_name_max_length,
         default = '',
         blank = True,
+    )
+
+    #Message templates
+    SLACK_TMPL_DEFAULT = 'MTD'
+    SLACK_TMPL_CHOICES = (
+        (SLACK_TMPL_DEFAULT, 'Default Slack Message Template')
+    )
+    message_template = models.CharField(
+        max_length = 3,
+        choices = SLACK_TMPL_CHOICES,
+        blank = False,
+        default = SLACK_TMPL_DEFAULT,
     )
     alert = models.OneToOneField(Alert, on_delete=models.CASCADE)
 
