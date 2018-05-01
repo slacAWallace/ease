@@ -46,6 +46,10 @@ class Alert(models.Model):
             This attribute will likely undergo significant change or possibly
             removal during the planned integration of the IEC 62682 plans
 
+    state : django.db.models.CharField
+        Alert state implies if alert triggers have fired and if the alert should
+        send new messages to alert owners.
+
     """
     name_max_length = 100
     name = models.CharField(max_length = name_max_length)
@@ -70,6 +74,19 @@ class Alert(models.Model):
         null = True,
     )
 
+    ACTIVE = 'AC'
+    SHELVED = 'SH'
+    ALERT_STATE_CHOICES = (
+        (ACTIVE, "Active"),
+        (SHELVED, "Shelved")
+    )
+    state = models.CharField(
+        max_length = 2,
+        choices = ALERT_STATE_CHOICES,
+        default = ACTIVE,
+        verbose_name = 'Alert State',
+    )
+
     def __repr__(self):
         # attempting to print subscriber and owner leads to infinite recursive loop
         return "{}( name={})".format(
@@ -81,22 +98,19 @@ class Alert(models.Model):
         return(str(self.name))
 
 
-class Pv(models.Model):
-    """Each PV instance is made to match with an EPICS PV.
-
-    Alerts engine consults the table of PVs to decide which
-    entries much be queried from the archiver
-    """
-    name_max_length = 100
-    name = models.CharField(max_length = name_max_length)
+class SlackSettings(models.Model):
+    """Alert settings for Slack communication
     
-
-    def __repr__(self):
-        return "{}(name={},)".format(self.__class__.__name__, self.name)
-
-    def __str__(self):
-        return(str(self.name))
-
+    Channel to use for communication.
+    --- placeholder for other settings in the future ---
+    """
+    channel_name_max_length = 100
+    channel_name = models.CharField(
+        max_length = channel_name_max_length,
+        default = '',
+        blank = True,
+    )
+    alert = models.OneToOneField(Alert, on_delete=models.CASCADE)
 
 class Trigger(models.Model):
     """Individual 'trip statemet'

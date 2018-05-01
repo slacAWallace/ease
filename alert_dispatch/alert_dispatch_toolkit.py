@@ -1,6 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 from .celery import app
 
+from datetime import datetime
+
 #Django setup
 import os, django
 
@@ -16,13 +18,20 @@ def add(x, y):
 
 
 @app.task
-def proc_alert(trigger_id=None):
+def proc_alert(alert_id=None, trigger_id=None):
     #Processes a triggered trigger: decides whether to send alerts, and sends them
 
     #Get the alert
+    alert = Alert.objects.get(id=alert_id)
     #Should we send an alert?
     #When was the last time we sent an alert?
+    if datetime.now() - alert.last_sent.datetime() > alert.lockout_duration.timedelta() and
     #Is the alert shelved?
+    not alert.state() == Alert.SHELVED:
+        send_alert = True
+    else:
+        send_alert = False
+
     #Send an email
     #Send Slack
     #Mark the alert last sent

@@ -10,6 +10,11 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    slack_username_length = 50
+    slack_username = models.CharField(
+        max_length = slack_username_length,
+        default = '',
+    )
 
     def __repr__(self):
         return("{}(user={},)".format(self.__class__.__name__, self.user))
