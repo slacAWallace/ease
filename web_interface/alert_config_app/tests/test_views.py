@@ -211,7 +211,7 @@ class test_alert_config_view(TestCase):
         try:
             alert_inst = Alert.objects.get(name="alert_name")
         except Exception as E:
-            #print(E)
+            print(E)
             self.fail("Alert not created")
          
         # confirm that the user is added as the owner
