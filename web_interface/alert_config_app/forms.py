@@ -27,9 +27,8 @@ class configTrigger(forms.Form):
 
     Attributes
     __________
-        new_pv : forms.ChoiceField
-            Provides dropdown selection of PV's to link to this trigger. This 
-            attr is defined in the __init__ due to its reliance on DB items.
+        new_value_src : forms.CharField
+            String specifying data source(s)
 
         new_compare : forms.ChoiceField
             Describes the comparison operation between the PV's value and 
@@ -47,7 +46,7 @@ class configTrigger(forms.Form):
         """
         super().__init__(*args,**kwargs)
 
-        self.fields['value_src'] = forms.CharField(
+        self.fields['new_value_src'] = forms.CharField(
             label = 'Value source',
             widget = forms.HiddenInput()
         )
